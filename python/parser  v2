@@ -1,0 +1,33 @@
+import sys
+import requests
+from bs4 import BeautifulSoup
+from KickassAPI import Search, Latest, User, CATEGORY, ORDER
+
+links = []
+
+
+def getTop25():
+	for t in Search("").order(ORDER.SEED).category(CATEGORY.MOVIES): # Blank search ordered by seeders gets the top 25 movies on the website at any given moment.
+		#if t.name[0:10] not in already_downloaded and 'french' or 'chinese' or 'german' not in t.name.lower(): # checks for replicates and different languages
+		links.append(t.torrent_link)
+
+
+def scrapeDownloadLinks():
+	for link in links:
+		r = requests.get(link)
+		list_1 = []
+		soup = BeautifulSoup(r.content, "lxml")
+		for link in soup.find_all("a", class_="kaGiantButton"):
+			list_1.append("http:" + link.get("href"))
+		download_link = list_1[3]
+		print download_link
+
+
+def main():
+	getTop25()
+	scrapeDownloadLinks()
+
+
+main()
+
+
